@@ -6,13 +6,26 @@
 
 # Getting Started
 
+## Front-end setup
+
+###### Install npm dependencies
+`npm install`
+
+###### Build project to prod with webpack
+`npm run build`
+
+###### Start development server on `http://localhost:3000`
+`npm run start`
+
+## Back-end setup
+
 ###### Install npm dependencies
 `npm install`
 
 ###### Run the node server
 `node app.js`
 
-###### Viewing the application in your browser
+###### Use to access API
 `http://localhost:8000`
 
 # Schema
@@ -70,5 +83,3 @@ GET|PUT|DELETE    /api/invoices/{id}
 GET|POST          /api/invoices/{id}/items
 GET|PUT|DELETE    /api/invoices/{invoice_id}/items/{id}
 ```
-
-

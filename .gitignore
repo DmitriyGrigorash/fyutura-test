@@ -1,2 +1,5 @@
 node_modules
 invoices.sqlite
+
+# Debug log from npm
+npm-debug.log
