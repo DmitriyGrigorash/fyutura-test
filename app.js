@@ -1,18 +1,20 @@
-var express = require('express'),
-    bodyParser = require('body-parser'),
-    http = require('http'),
-    path = require('path'),
-    cors = require('cors'),
-    Sequelize = require('sequelize'),
-    _ = require('lodash');
+const express = require('express');
+const bodyParser = require('body-parser');
+const http = require('http');
+const path = require('path');
+const cors = require('cors');
+const Sequelize = require('sequelize');
+const pick = require('lodash/pick');
 
+const sequelize = new Sequelize(
+  'sqlite://' + path.join(__dirname, 'invoices.sqlite'),
+  {
+    dialect: 'sqlite',
+    storage: path.join(__dirname, 'invoices.sqlite')
+  }
+);
 
-sequelize = new Sequelize('sqlite://' + path.join(__dirname, 'invoices.sqlite'), {
-  dialect: 'sqlite',
-  storage: path.join(__dirname, 'invoices.sqlite')
-});
-
-Customer = sequelize.define('customers', {
+const Customer = sequelize.define('customers', {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -29,7 +31,7 @@ Customer = sequelize.define('customers', {
   }
 });
 
-Product = sequelize.define('products', {
+const Product = sequelize.define('products', {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -43,7 +45,7 @@ Product = sequelize.define('products', {
   }
 });
 
-Invoice = sequelize.define('invoices', {
+const Invoice = sequelize.define('invoices', {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -60,7 +62,7 @@ Invoice = sequelize.define('invoices', {
   }
 });
 
-InvoiceItem = sequelize.define('invoice_items', {
+const InvoiceItem = sequelize.define('invoice_items', {
   id: {
     type: Sequelize.INTEGER,
     primaryKey: true,
@@ -77,55 +79,56 @@ InvoiceItem = sequelize.define('invoice_items', {
   }
 });
 
-sequelize.sync().then(function() {
-  Customer.create({
-    name: "Mark Benson",
-    address: "353 Rochester St, Rialto FL 43250",
-    phone: "555-534-2342"
+sequelize
+  .sync()
+  .then(() => {
+    Customer.create({
+      name: 'Mark Benson',
+      address: '353 Rochester St, Rialto FL 43250',
+      phone: '555-534-2342'
+    });
+
+    Customer.create({
+      name: 'Bob Smith',
+      address: '215 Market St, Dansville CA 94325',
+      phone: '555-534-2342'
+    });
+
+    Customer.create({
+      name: 'John Draper',
+      address: '890 Main St, Fontana IL 31450',
+      phone: '555-534-2342'
+    });
+
+    Product.create({
+      name: 'Parachute Pants',
+      price: 29.99
+    });
+
+    Product.create({
+      name: 'Phone Holder',
+      price: 9.99
+    });
+
+    Product.create({
+      name: 'Pet Rock',
+      price: 5.99
+    });
+
+    Product.create({
+      name: 'Egg Timer',
+      price: 15.99
+    });
+
+    Product.create({
+      name: 'Neon Green Hat',
+      price: 21.99
+    });
+  })
+  .catch(e => {
+    console.log('ERROR SYNCING WITH DB', e);
   });
-
-  Customer.create({
-    name: "Bob Smith",
-    address: "215 Market St, Dansville CA 94325",
-    phone: "555-534-2342"
-  });
-
-  Customer.create({
-    name: "John Draper",
-    address: "890 Main St, Fontana IL 31450",
-    phone: "555-534-2342"
-  });
-
-  Product.create({
-    name: "Parachute Pants",
-    price: 29.99
-  });
-
-  Product.create({
-    name: "Phone Holder",
-    price: 9.99
-  });
-
-  Product.create({
-    name: "Pet Rock",
-    price: 5.99
-  });
-
-  Product.create({
-    name: "Egg Timer",
-    price: 15.99
-  });
-
-  Product.create({
-    name: "Neon Green Hat",
-    price: 21.99
-  });
-
-}).catch(function(e) {
-  console.log("ERROR SYNCING WITH DB", e);
-});
-
-var app = module.exports = express();
+const app = (module.exports = express());
 app.set('port', process.env.PORT || 8000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -134,35 +137,41 @@ app.use(cors());
 
 // CUSTOMERS API
 
-app.route('/api/customers')
-  .get(function(req, res) {
-    Customer.findAll().then(function(customers) {
+app
+  .route('/api/customers')
+  .get((req, res) => {
+    Customer.findAll().then(customers => {
       res.json(customers);
-    })
+    });
   })
-  .post(function(req, res) {
-    var customer = Customer.build(_.pick(req.body, ['name', 'address', 'phone']));
-    customer.save().then(function(customer){
+  .post((req, res) => {
+    const customer = Customer.build(
+      pick(req.body, ['name', 'address', 'phone'])
+    );
+    customer.save().then(customer => {
       res.json(customer);
     });
   });
 
-app.route('/api/customers/:customer_id')
-  .get(function(req, res) {
-    Customer.findById(req.params.customer_id).then(function(customer) {
+app
+  .route('/api/customers/:customer_id')
+  .get((req, res) => {
+    Customer.findById(req.params.customer_id).then(customer => {
       res.json(customer);
     });
   })
-  .put(function(req, res) {
-    Customer.findById(req.params.customer_id).then(function(customer) {
-      customer.update(_.pick(req.body, ['name', 'address', 'phone'])).then(function(customer) {
-        res.json(customer);
-      });
+  .put((req, res) => {
+    Customer.findById(req.params.customer_id).then(customer => {
+      customer
+        .update(pick(req.body, ['name', 'address', 'phone']))
+        .then(customer => {
+          res.json(customer);
+        });
     });
   })
-  .delete(function(req, res) {
-    Customer.findById(req.params.customer_id).then(function(customer) {
-      customer.destroy().then(function(customer) {
+  .delete((req, res) => {
+    Customer.findById(req.params.customer_id).then(customer => {
+      customer.destroy().then(customer => {
         res.json(customer);
       });
     });
@@ -170,117 +179,130 @@ app.route('/api/customers/:customer_id')
 
 // PRODUCTS API
 
-app.route('/api/products')
-  .get(function(req, res) {
-    Product.findAll().then(function(products) {
+app
+  .route('/api/products')
+  .get((req, res) => {
+    Product.findAll().then(products => {
       res.json(products);
-    })
+    });
   })
-  .post(function(req, res) {
-    var product = Product.build(_.pick(req.body, ['name', 'price']));
-    product.save().then(function(product){
+  .post((req, res) => {
+    const product = Product.build(pick(req.body, ['name', 'price']));
+    product.save().then(product => {
       res.json(product);
     });
   });
 
-app.route('/api/products/:product_id')
-  .get(function(req, res) {
-    Product.findById(req.params.product_id).then(function(product) {
+app
+  .route('/api/products/:product_id')
+  .get((req, res) => {
+    Product.findById(req.params.product_id).then(product => {
       res.json(product);
     });
   })
-  .put(function(req, res) {
-    Product.findById(req.params.product_id).then(function(product) {
-      product.update(_.pick(req.body, ['name', 'price'])).then(function(product) {
+  .put((req, res) => {
+    Product.findById(req.params.product_id).then(product => {
+      product.update(pick(req.body, ['name', 'price'])).then(product => {
         res.json(product);
       });
     });
   })
-  .delete(function(req, res) {
-    Product.findById(req.params.product_id).then(function(product) {
-      product.destroy().then(function(product) {
+  .delete((req, res) => {
+    Product.findById(req.params.product_id).then(product => {
+      product.destroy().then(product => {
         res.json(product);
       });
     });
   });
-
 
 // INVOICES API
 
-app.route('/api/invoices')
-  .get(function(req, res) {
-    Invoice.findAll().then(function(invoices) {
+app
+  .route('/api/invoices')
+  .get((req, res) => {
+    Invoice.findAll().then(invoices => {
       res.json(invoices);
-    })
+    });
   })
-  .post(function(req, res) {
-    var invoice = Invoice.build(_.pick(req.body, ['customer_id', 'discount', 'total']));
-    invoice.save().then(function(invoice){
+  .post((req, res) => {
+    const invoice = Invoice.build(
+      pick(req.body, ['customer_id', 'discount', 'total'])
+    );
+    invoice.save().then(invoice => {
       res.json(invoice);
     });
   });
 
-app.route('/api/invoices/:invoice_id')
-  .get(function(req, res) {
-    Invoice.findById(req.params.invoice_id).then(function(invoice) {
+app
+  .route('/api/invoices/:invoice_id')
+  .get((req, res) => {
+    Invoice.findById(req.params.invoice_id).then(invoice => {
       res.json(invoice);
     });
   })
-  .put(function(req, res) {
-    Invoice.findById(req.params.invoice_id).then(function(invoice) {
-      invoice.update(_.pick(req.body, ['customer_id', 'discount', 'total'])).then(function(invoice) {
-        res.json(invoice);
-      });
+  .put((req, res) => {
+    Invoice.findById(req.params.invoice_id).then(invoice => {
+      invoice
+        .update(pick(req.body, ['customer_id', 'discount', 'total']))
+        .then(invoice => {
+          res.json(invoice);
+        });
     });
   })
-  .delete(function(req, res) {
-    Invoice.findById(req.params.invoice_id).then(function(invoice) {
-      invoice.destroy().then(function(invoice) {
+  .delete((req, res) => {
+    Invoice.findById(req.params.invoice_id).then(invoice => {
+      invoice.destroy().then(invoice => {
         res.json(invoice);
       });
     });
   });
-
 
 // INVOICE ITEMS API
 
-app.route('/api/invoices/:invoice_id/items')
-  .get(function(req, res) {
-    InvoiceItem.findAll({where: { invoice_id: req.params.invoice_id }}).then(function(invoice_items) {
-      res.json(invoice_items);
-    })
+app
+  .route('/api/invoices/:invoice_id/items')
+  .get((req, res) => {
+    InvoiceItem.findAll({ where: { invoice_id: req.params.invoice_id } }).then(
+      invoice_items => {
+        res.json(invoice_items);
+      }
+    );
   })
-  .post(function(req, res) {
-    var invoice_item = InvoiceItem.build(_.pick(req.body, ['product_id', 'quantity']));
+  .post((req, res) => {
+    const invoice_item = InvoiceItem.build(
+      pick(req.body, ['product_id', 'quantity'])
+    );
     invoice_item.set('invoice_id', req.params.invoice_id);
-    invoice_item.save().then(function(invoice_item){
+    invoice_item.save().then(invoice_item => {
       res.json(invoice_item);
     });
   });
 
-app.route('/api/invoices/:invoice_id/items/:id')
-  .get(function(req, res) {
-    InvoiceItem.findById(req.params.id).then(function(invoice_item) {
+app
+  .route('/api/invoices/:invoice_id/items/:id')
+  .get((req, res) => {
+    InvoiceItem.findById(req.params.id).then(invoice_item => {
       res.json(invoice_item);
     });
   })
-  .put(function(req, res) {
-    InvoiceItem.findById(req.params.id).then(function(invoice_item) {
-      invoice_item.update(_.pick(req.body, ['product_id', 'quantity'])).then(function(invoice_item) {
-        res.json(invoice_item);
-      });
+  .put((req, res) => {
+    InvoiceItem.findById(req.params.id).then(invoice_item => {
+      invoice_item
+        .update(pick(req.body, ['product_id', 'quantity']))
+        .then(invoice_item => {
+          res.json(invoice_item);
+        });
     });
   })
-  .delete(function(req, res) {
-    InvoiceItem.findById(req.params.id).then(function(invoice_item) {
-      invoice_item.destroy().then(function(invoice_item) {
+  .delete((req, res) => {
+    InvoiceItem.findById(req.params.id).then(invoice_item => {
+      invoice_item.destroy().then(invoice_item => {
         res.json(invoice_item);
       });
     });
   });
-
 
 // Starting express server
-http.createServer(app).listen(app.get('port'), function () {
+http.createServer(app).listen(app.get('port'), () => {
   console.log('Express server listening on port ' + app.get('port'));
 });
