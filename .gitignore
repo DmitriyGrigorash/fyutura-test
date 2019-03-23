@@ -1,4 +1,5 @@
 node_modules
+.idea/
 invoices.sqlite
 
 # Debug log from npm
