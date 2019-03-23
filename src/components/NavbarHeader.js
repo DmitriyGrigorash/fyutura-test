@@ -18,7 +18,7 @@ const NavbarHeader = () =>
         <NavItem eventKey={2}>
           <Link className="item" to="/customers">Customers</Link>
         </NavItem>
-        <NavItem eventKey={2}>
+        <NavItem eventKey={3}>
           <Link className="item" to="/invoices">Invoices</Link>
         </NavItem>
       </Nav>
