@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { ListGroup, ListGroupItem } from 'react-bootstrap';
 
-import { getInvoices } from '../actions';
+import { fetchCustomer } from '../actions';
 
 
 class Invoices extends React.Component {
@@ -13,7 +13,7 @@ class Invoices extends React.Component {
         // this.handleClick = this.handleClick.bind(this);
     }
     componentDidMount() {
-        this.props.getInvoices();
+        this.props.fetchCustomer();
     }
     render() {
         return(
@@ -27,19 +27,19 @@ class Invoices extends React.Component {
     }
 }
 Invoices.defaultProps = {
-    invoices: []
+    customers: []
 };
 Invoices.propTypes = {
-    invoices: PropTypes.array.isRequired,
-    getInvoices: PropTypes.func.isRequired,
+    customers: PropTypes.array.isRequired,
+    fetchCustomer: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-    invoices: state.invoices
+    customers: state.customers
 });
 
 const mapDispatchToProps = dispatch => ({
-    getInvoices: () => dispatch(getInvoices())
+    fetchCustomer: () => dispatch(fetchCustomer())
 });
 
 export default connect(

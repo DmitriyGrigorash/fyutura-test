@@ -3,11 +3,13 @@ import { combineReducers } from 'redux';
 
 /* Reducers */
 import invoices from './invoices';
+import customers from './customers';
 
 
 const rootReducer = combineReducers({
     routing,
-    invoices
+    invoices,
+    customers
 });
 
 export default rootReducer;
