@@ -9,7 +9,6 @@ const NavbarHeader = () =>
         <Nav className="mr-auto">
             <Nav.Link href="Products">products</Nav.Link>
             <Nav.Link href="Customers">customers</Nav.Link>
-            <Nav.Link href="Invoices">invoices</Nav.Link>
         </Nav>
     </Navbar>;
 export default NavbarHeader;
