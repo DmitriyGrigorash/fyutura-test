@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { ListGroup, ListGroupItem } from 'react-bootstrap';
+import ListGroup from 'react-bootstrap/ListGroup';
+
 
 import { fetchCustomer } from '../actions';
 
@@ -9,8 +10,6 @@ import { fetchCustomer } from '../actions';
 class Invoices extends React.Component {
     constructor(props) {
         super(props);
-        // this.state = { invoices: 0 };
-        // this.handleClick = this.handleClick.bind(this);
     }
     componentDidMount() {
         this.props.fetchCustomer();
@@ -18,10 +17,13 @@ class Invoices extends React.Component {
     render() {
         return(
             <div>
-                <ListGroup as="ul">
-                    <ListGroupItem>Invoice</ListGroupItem>
-                    <ListGroupItem>Invoice</ListGroupItem>
-                </ListGroup>;
+                <ListGroup>
+                    <ListGroup.Item eventKey="1">Invoice</ListGroup.Item>
+                    <ListGroup.Item eventKey="2">Invoice2</ListGroup.Item>
+                    <ListGroup.Item eventKey="3">Invoice3</ListGroup.Item>
+                    <ListGroup.Item eventKey="4">Invoice4</ListGroup.Item>
+                    <ListGroup.Item eventKey="5">Invoice5</ListGroup.Item>
+                </ListGroup>
             </div>
         );
     }
