@@ -2,6 +2,7 @@ import React from 'react';
 // import { connect } from 'react-redux';
 // import PropTypes from 'prop-types';
 import ListGroup from 'react-bootstrap/ListGroup';
+import { Button } from 'react-bootstrap';
 
 
 // import { fetchInvoices } from '../actions';
@@ -17,6 +18,9 @@ export default class Invoices extends React.Component {
     render() {
         return(
             <section>
+                <Button variant="primary" size="lg" href="invoice">
+                    New invoice
+                </Button>
                 <ListGroup>
                     <ListGroup.Item eventKey="1">Invoice</ListGroup.Item>
                     <ListGroup.Item eventKey="2">Invoice2</ListGroup.Item>
