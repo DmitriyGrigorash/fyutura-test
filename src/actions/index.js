@@ -12,7 +12,7 @@ export const fetchCustomer = () => {
         return fetch('http://localhost:8000/api/customers', {method: 'GET'})
             .then(response => response.json())
             .then(json => dispatch(getCustomers(json)))
-            .catch(err => console.error('#### customers request error', err));
+            .catch(err => err);
     };
 };
 
@@ -21,6 +21,6 @@ export const fetchProducts = () => {
         return fetch('http://localhost:8000/api/products', {method: 'GET'})
             .then(response => response.json())
             .then(json => dispatch(getProducts(json)))
-            .catch(err => console.error('#### products request error', err));
+            .catch(err => err);
     };
 };
