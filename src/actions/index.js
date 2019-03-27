@@ -2,10 +2,10 @@ export const getCustomers = (customers) => ({
     type: 'GET_CUSTOMERS',
     customers
 });
-export const getProducts = (products) => ({
-    type: 'GET_PRODUCTS',
-    products
-});
+export const getProducts = (products) => {
+    const addAmountToProducts = products.map(item => ({...item, amount: 1}));
+    return { type: 'GET_PRODUCTS', products: addAmountToProducts };
+};
 
 export const fetchCustomer = () => {
     return dispatch => {

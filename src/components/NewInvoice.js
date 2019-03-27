@@ -5,29 +5,39 @@ import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import { Col, Container, Row } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
-import _ from 'lodash';
+// import _ from 'lodash';
 
+import InvoiceUtils from '../utils/InvoiceUtils';
 
 class NewInvoice extends Component {
     constructor( props ) {
         super( props );
         this.state = {
             selectedProducts: [],
+            invoiceTotal: 0,
+            discount: 0
         };
         this.handleProductsSelect = this.handleProductsSelect.bind(this);
         this.handleProductAmount = this.handleProductAmount.bind(this);
+        // this.handleDiscount = this.handleDiscount.bind(this);
     }
     componentDidMount() {
         this.props.fetchCustomer();
         this.props.fetchProducts();
     }
+    // handleDiscount(event) {
+    //     const value = +event.target.value;
+    // }
     handleProductsSelect(event) {
         const { products } = this.props;
         const value = +event.target.value;
         this.setState(prevState => {
-            const selectedProduct = _.find(products, (el) => el.id === value);
+            const selected = InvoiceUtils.getSelectedProduct(products, value);
+            const selectedProducts = InvoiceUtils.addProducts(prevState.selectedProducts, selected);
+            const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
             return {
-                selectedProducts: _.uniqBy([...prevState.selectedProducts, {...selectedProduct, amount: 1} ], 'id')
+                selectedProducts,
+                invoiceTotal
             };
         });
     }
@@ -35,10 +45,13 @@ class NewInvoice extends Component {
         const value = +event.target.value;
         const id = +event.target.id;
         this.setState(prevState => {
-            const selectedProduct = _.find(prevState.selectedProducts, (el) => el.id === id);
-            selectedProduct.amount = value;
+            const selected = InvoiceUtils.getSelectedProduct(prevState.selectedProducts, id);
+            selected.amount = value;
+            const selectedProducts = InvoiceUtils.addProducts(prevState.selectedProducts, selected);
+            const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
             return {
-                selectedProducts: _.uniqBy([...prevState.selectedProducts, selectedProduct], 'id')
+                selectedProducts,
+                invoiceTotal
             };
         });
     }
@@ -47,24 +60,42 @@ class NewInvoice extends Component {
             <Container>
                 <Row>
                     <Col lg={6}>
-                        <Form>
-                            <Form.Group>
-                                <Form.Label>Select customer</Form.Label>
-                                <Form.Control as="select">
-                                    {this.props.customers.map((val, i) => (
-                                        <option key={i} value={val.id}>{val.name}</option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                            <Form.Group>
-                                <Form.Label>Select products</Form.Label>
-                                <Form.Control as="select" onChange={this.handleProductsSelect}>
-                                    {this.props.products.map((val, i) => (
-                                        <option key={i} value={val.id}>{val.name} - {val.price}</option>
-                                    ))}
-                                </Form.Control>
-                            </Form.Group>
-                        </Form>
+                        <Form.Group>
+                            <Form.Label>Select customer</Form.Label>
+                            <Form.Control as="select">
+                                {this.props.customers.map((val, i) => (
+                                    <option key={i} value={val.id}>{val.name}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Select products</Form.Label>
+                            <Form.Control as="select" onChange={this.handleProductsSelect}>
+                                {this.props.products.map((val, i) => (
+                                    <option key={i} value={val.id}>{val.name} - {val.price}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Invoice total</Form.Label>
+                            <Form.Control
+                                placeholder="Total: 0"
+                                readOnly
+                                type="text"
+                                value={this.state.invoiceTotal}
+                            />
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Discount %</Form.Label>
+                            <Form.Control
+                                onChange={this.handleDiscount}
+                                placeholder="Discount %"
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={this.state.discount}
+                            />
+                        </Form.Group>
                         <Table striped bordered hover size="sm">
                             <thead>
                             <tr>
@@ -84,7 +115,8 @@ class NewInvoice extends Component {
                                             onChange={this.handleProductAmount}
                                             placeholder="Amount"
                                             size="sm"
-                                            type="text"
+                                            type="number"
+                                            min={1}
                                             value={product.amount}
                                         />
                                     </td>
