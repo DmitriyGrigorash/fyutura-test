@@ -4,28 +4,43 @@ import { fetchCustomer, fetchProducts } from '../actions';
 import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import { Col, Container, Row } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
+import _ from 'lodash';
 
 
 class NewInvoice extends Component {
     constructor( props ) {
         super( props );
         this.state = {
-            selectedProducts: []
+            selectedProducts: [],
         };
         this.handleProductsSelect = this.handleProductsSelect.bind(this);
+        this.handleProductAmount = this.handleProductAmount.bind(this);
     }
     componentDidMount() {
         this.props.fetchCustomer();
         this.props.fetchProducts();
     }
     handleProductsSelect(event) {
-        event.persist();
         const { products } = this.props;
         const value = +event.target.value;
-        const selectedProducts = products.find((el) => el.id === value);
-        this.setState(prevState => ({
-            selectedProducts: [...prevState.selectedProducts, selectedProducts]
-        }));
+        this.setState(prevState => {
+            const selectedProduct = _.find(products, (el) => el.id === value);
+            return {
+                selectedProducts: _.uniqBy([...prevState.selectedProducts, {...selectedProduct, amount: 1} ], 'id')
+            };
+        });
+    }
+    handleProductAmount(event) {
+        const value = +event.target.value;
+        const id = +event.target.id;
+        this.setState(prevState => {
+            const selectedProduct = _.find(prevState.selectedProducts, (el) => el.id === id);
+            selectedProduct.amount = value;
+            return {
+                selectedProducts: _.uniqBy([...prevState.selectedProducts, selectedProduct], 'id')
+            };
+        });
     }
     render() {
         return (
@@ -50,6 +65,33 @@ class NewInvoice extends Component {
                                 </Form.Control>
                             </Form.Group>
                         </Form>
+                        <Table striped bordered hover size="sm">
+                            <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Amount</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {this.state.selectedProducts.map((product, i) => (
+                                <tr key={i}>
+                                    <td>{product.name}</td>
+                                    <td>{product.price}</td>
+                                    <td>
+                                        <Form.Control
+                                            id={product.id}
+                                            onChange={this.handleProductAmount}
+                                            placeholder="Amount"
+                                            size="sm"
+                                            type="text"
+                                            value={product.amount}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </Table>
                     </Col>
                 </Row>
             </Container>
