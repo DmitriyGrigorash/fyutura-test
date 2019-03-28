@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import { Col, Container, Row } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
-// import _ from 'lodash';
 
 import InvoiceUtils from '../utils/InvoiceUtils';
 
@@ -15,19 +14,53 @@ class NewInvoice extends Component {
         this.state = {
             selectedProducts: [],
             invoiceTotal: 0,
-            discount: 0
+            invoiceTotalWithDiscount: 0,
+            discount: 0,
         };
         this.handleProductsSelect = this.handleProductsSelect.bind(this);
         this.handleProductAmount = this.handleProductAmount.bind(this);
-        // this.handleDiscount = this.handleDiscount.bind(this);
+        this.handleDiscount = this.handleDiscount.bind(this);
     }
     componentDidMount() {
         this.props.fetchCustomer();
         this.props.fetchProducts();
     }
-    // handleDiscount(event) {
-    //     const value = +event.target.value;
-    // }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        /** Check if state.discount or state.invoiceTotal has changed. And run setDiscount() **/
+        if(snapshot) {
+            this.setDiscount();
+        }
+    }
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        const {invoiceTotal, discount} = this.state;
+        if(prevState.invoiceTotal !== invoiceTotal || prevState.discount !== discount) {
+            return true;
+        }
+        return null;
+    }
+    setDiscount() {
+        /** If discount has changed - count result price with discount "%" or set it to base price **/
+        const { discount, invoiceTotal } = this.state;
+        if (discount !== 0) {
+            const result = InvoiceUtils.getDiscount(invoiceTotal, this.state.discount);
+            this.setState({
+                invoiceTotalWithDiscount: result
+            });
+        } else {
+            this.setState({
+                invoiceTotalWithDiscount: invoiceTotal
+            });
+        }
+    }
+    handleDiscount(event) {
+        const value = +event.target.value;
+        if (value > 100) {
+            return;
+        }
+        this.setState({
+            discount: value
+        });
+    }
     handleProductsSelect(event) {
         const { products } = this.props;
         const value = +event.target.value;
@@ -37,7 +70,7 @@ class NewInvoice extends Component {
             const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
             return {
                 selectedProducts,
-                invoiceTotal
+                invoiceTotal,
             };
         });
     }
@@ -51,7 +84,7 @@ class NewInvoice extends Component {
             const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
             return {
                 selectedProducts,
-                invoiceTotal
+                invoiceTotal,
             };
         });
     }
@@ -82,7 +115,7 @@ class NewInvoice extends Component {
                                 placeholder="Total: 0"
                                 readOnly
                                 type="text"
-                                value={this.state.invoiceTotal}
+                                value={this.state.invoiceTotalWithDiscount}
                             />
                         </Form.Group>
                         <Form.Group>
@@ -93,7 +126,6 @@ class NewInvoice extends Component {
                                 type="number"
                                 min={0}
                                 max={100}
-                                value={this.state.discount}
                             />
                         </Form.Group>
                         <Table striped bordered hover size="sm">

@@ -8,9 +8,14 @@ export default class InvoiceUtils {
         return _.uniqBy([...selectedProducts, currentProd ], 'id');
     }
     static countTotalPrice(selectedProducts) {
-        return selectedProducts.reduce((acc, current) => {
+        const price = selectedProducts.reduce((acc, current) => {
             const productSumPrice = current.price * current.amount;
             return acc + productSumPrice;
         }, 0);
+        return price.toFixed(2);
+    }
+    static getDiscount(invoiceTotal, value) {
+        const discount = invoiceTotal * value / 100;
+        return (invoiceTotal - discount).toFixed(2);
     }
 }

@@ -1,8 +1,8 @@
-export const getCustomers = (customers) => ({
+const getCustomers = (customers) => ({
     type: 'GET_CUSTOMERS',
     customers
 });
-export const getProducts = (products) => {
+const getProducts = (products) => {
     const addAmountToProducts = products.map(item => ({...item, amount: 1}));
     return { type: 'GET_PRODUCTS', products: addAmountToProducts };
 };
