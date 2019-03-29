@@ -1,17 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { fetchCustomer, fetchProducts } from '../actions';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { Button, Col, Container, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
-import { Col, Container, Row } from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
 
+import { fetchCustomer, fetchProducts, postFetchInvoice } from '../actions';
 import InvoiceUtils from '../utils/InvoiceUtils';
 
 class NewInvoice extends Component {
     constructor( props ) {
         super( props );
         this.state = {
+            customerId: 0,
             selectedProducts: [],
             invoiceTotal: 0,
             invoiceTotalWithDiscount: 0,
@@ -20,6 +22,8 @@ class NewInvoice extends Component {
         this.handleProductsSelect = this.handleProductsSelect.bind(this);
         this.handleProductAmount = this.handleProductAmount.bind(this);
         this.handleDiscount = this.handleDiscount.bind(this);
+        this.handleCustomer = this.handleCustomer.bind(this);
+        this.saveInvoice = this.saveInvoice.bind(this);
     }
     componentDidMount() {
         this.props.fetchCustomer();
@@ -38,6 +42,16 @@ class NewInvoice extends Component {
         }
         return null;
     }
+    saveInvoice() {
+        // console.log('#### saveInvoice');
+        const {customerId, discount, invoiceTotalWithDiscount} = this.state;
+        const data = {
+            customer_id: customerId,
+            discount: discount,
+            total: invoiceTotalWithDiscount
+        };
+        postFetchInvoice(data);
+    }
     setDiscount() {
         /** If discount has changed - count result price with discount "%" or set it to base price **/
         const { discount, invoiceTotal } = this.state;
@@ -51,6 +65,12 @@ class NewInvoice extends Component {
                 invoiceTotalWithDiscount: invoiceTotal
             });
         }
+    }
+    handleCustomer(event) {
+        const value = +event.target.value;
+        this.setState({
+            customerId: value
+        });
     }
     handleDiscount(event) {
         const value = +event.target.value;
@@ -93,9 +113,14 @@ class NewInvoice extends Component {
             <Container>
                 <Row>
                     <Col lg={6}>
+                        <Link to="/">
+                            <Button variant="primary" size="md" type="button" onClick={this.saveInvoice}>
+                                Save invoice
+                            </Button>
+                        </Link>
                         <Form.Group>
                             <Form.Label>Select customer</Form.Label>
-                            <Form.Control as="select">
+                            <Form.Control as="select" onChange={this.handleCustomer}>
                                 {this.props.customers.map((val, i) => (
                                     <option key={i} value={val.id}>{val.name}</option>
                                 ))}

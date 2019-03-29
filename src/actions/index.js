@@ -24,3 +24,15 @@ export const fetchProducts = () => {
             .catch(err => err);
     };
 };
+
+export const postFetchInvoice = (invoice) => {
+    return fetch('http://localhost:8000/api/invoices',
+        { method: 'POST', body: JSON.stringify(invoice) }
+        ).then((response) => response.json())
+        .then((responseJson) => {
+            return responseJson.success;
+        })
+        .catch((error) => {
+            console.error(error);
+        });
+};
