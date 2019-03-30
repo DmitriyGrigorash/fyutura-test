@@ -1,34 +1,63 @@
 import React from 'react';
-// import { connect } from 'react-redux';
-// import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import ListGroup from 'react-bootstrap/ListGroup';
-import { Button } from 'react-bootstrap';
+import { Button, Container, Row, Col } from 'react-bootstrap';
 
 
-// import { fetchInvoices } from '../actions';
+import { fetchInvoices } from '../actions';
 
 
-export default class Invoices extends React.Component {
+class Invoices extends React.Component {
     constructor(props) {
         super(props);
     }
     componentDidMount() {
-        // this.props.fetchInvoices();
+        this.props.getInvoices();
     }
     render() {
         return(
-            <section>
-                <Button variant="primary" size="lg" href="invoice">
-                    New invoice
-                </Button>
-                <ListGroup>
-                    <ListGroup.Item eventKey="1">Invoice</ListGroup.Item>
-                    <ListGroup.Item eventKey="2">Invoice2</ListGroup.Item>
-                    <ListGroup.Item eventKey="3">Invoice3</ListGroup.Item>
-                    <ListGroup.Item eventKey="4">Invoice4</ListGroup.Item>
-                    <ListGroup.Item eventKey="5">Invoice5</ListGroup.Item>
-                </ListGroup>
-            </section>
+            <Container>
+                <Row>
+                    <Col col={6}>
+                        <Button variant="primary" size="lg" href="invoice">
+                            New invoice
+                        </Button>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col lg={6}>
+                        <ListGroup>
+                            {this.props.invoices.map((item, i) => (
+                                <ListGroup.Item key={i} variant="secondary">
+                                    Customer id: {item.customer_id}. Total: {item.total}. Discount: {item.discount}
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    </Col>
+                </Row>
+            </Container>
         );
     }
 }
+
+Invoices.defaultProps = {
+    invoices: []
+};
+Invoices.propTypes = {
+    invoices: PropTypes.array.isRequired,
+    getInvoices: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = state => ({
+    invoices: state.invoices.invoices,
+});
+
+const mapDispatchToProps = dispatch => ({
+    getInvoices: () => dispatch(fetchInvoices()),
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Invoices);

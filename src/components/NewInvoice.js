@@ -6,7 +6,7 @@ import { Button, Col, Container, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
 
-import { fetchCustomer, fetchProducts, postFetchInvoice } from '../actions';
+import { fetchCustomer, fetchProducts, postFetchInvoice, putFetchInvoice } from '../actions';
 import InvoiceUtils from '../utils/InvoiceUtils';
 
 class NewInvoice extends Component {
@@ -33,6 +33,7 @@ class NewInvoice extends Component {
         /** Check if state.discount or state.invoiceTotal has been changed. And run setDiscount() **/
         if(snapshot) {
             this.setDiscount();
+            // this.saveInvoice();
         }
     }
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -49,7 +50,11 @@ class NewInvoice extends Component {
             'discount': discount,
             'total': invoiceTotalWithDiscount
         };
-        postFetchInvoice(data);
+        if (this.props.currentInvoiceId) {
+            this.props.putInvoice(data);
+        } else {
+            this.props.postInvoice(data);
+        }
     }
     setDiscount() {
         /** If discount has changed - count result price with discount "%" or set it to base price **/
@@ -192,18 +197,24 @@ NewInvoice.defaultProps = {
 NewInvoice.propTypes = {
     customers: PropTypes.array.isRequired,
     products: PropTypes.array.isRequired,
+    currentInvoiceId: PropTypes.any.isRequired,
     fetchCustomer: PropTypes.func.isRequired,
     fetchProducts: PropTypes.func.isRequired,
+    postInvoice: PropTypes.func.isRequired,
+    putInvoice: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-    customers: state.customers,
+    customers: state.customers.customers,
+    currentInvoiceId: state.invoices.currentInvoiceId,
     products: state.products,
 });
 
 const mapDispatchToProps = dispatch => ({
     fetchCustomer: () => dispatch(fetchCustomer()),
-    fetchProducts: () => dispatch(fetchProducts())
+    fetchProducts: () => dispatch(fetchProducts()),
+    postInvoice: () => dispatch(postFetchInvoice()),
+    putInvoice: () => dispatch(putFetchInvoice())
 });
 
 export default connect(
