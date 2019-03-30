@@ -27,12 +27,10 @@ export const fetchProducts = () => {
 
 export const postFetchInvoice = (invoice) => {
     return fetch('http://localhost:8000/api/invoices',
-        { method: 'POST', body: JSON.stringify(invoice) }
+        { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
         ).then((response) => response.json())
-        .then((responseJson) => {
-            return responseJson.success;
+        .then(response => {
+            console.log('#### response', response);
         })
-        .catch((error) => {
-            console.error(error);
-        });
+        .catch(error => console.error('Error:', error));
 };

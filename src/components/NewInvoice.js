@@ -30,7 +30,7 @@ class NewInvoice extends Component {
         this.props.fetchProducts();
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
-        /** Check if state.discount or state.invoiceTotal has changed. And run setDiscount() **/
+        /** Check if state.discount or state.invoiceTotal has been changed. And run setDiscount() **/
         if(snapshot) {
             this.setDiscount();
         }
@@ -43,12 +43,11 @@ class NewInvoice extends Component {
         return null;
     }
     saveInvoice() {
-        // console.log('#### saveInvoice');
         const {customerId, discount, invoiceTotalWithDiscount} = this.state;
         const data = {
-            customer_id: customerId,
-            discount: discount,
-            total: invoiceTotalWithDiscount
+            'customer_id': customerId,
+            'discount': discount,
+            'total': invoiceTotalWithDiscount
         };
         postFetchInvoice(data);
     }
