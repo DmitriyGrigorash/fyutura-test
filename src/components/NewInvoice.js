@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Button, Col, Container, Row } from 'react-bootstrap';
+import { Button, ButtonToolbar, Col, Container, Row } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import Table from 'react-bootstrap/Table';
 
@@ -123,29 +123,36 @@ class NewInvoice extends Component {
         const { invoiceTotalWithDiscount, invoiceTotal, discount } = this.state;
         const totalPrice = discount !== 0 ? invoiceTotalWithDiscount : invoiceTotal;
         return (
-            <section className="Invoice">
-                <Container>
+            <Container>
                 <Row>
                     <Col lg={6}>
-                        <Link to="/">
-                            <Button variant="primary" size="md" type="button" onClick={this.saveInvoice}>
-                                Save invoice
-                            </Button>
-                        </Link>
+                        <ButtonToolbar bsPrefix="invoice-buttons">
+                            <Link to="/">
+                                <Button variant="success" size="sm" type="button" onClick={this.saveInvoice}>
+                                    Save invoice
+                                </Button>
+                            </Link>
+                            <Button variant="primary" size="sm">Add new customer</Button>
+                            <Button variant="primary" size="sm">Add new product</Button>
+                        </ButtonToolbar>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col lg={6}>
                         <Form.Group>
                             <Form.Label>Select customer</Form.Label>
                             <Form.Control as="select" onChange={this.handleCustomer}>
-                                {this.props.customers.map( ( val, i ) => (
+                                {this.props.customers.map((val, i) => (
                                     <option key={i} value={val.id}>{val.name}</option>
-                                ) )}
+                                ))}
                             </Form.Control>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Select products</Form.Label>
                             <Form.Control as="select" onChange={this.handleProductsSelect}>
-                                {this.props.products.map( ( val, i ) => (
+                                {this.props.products.map((val, i) => (
                                     <option key={i} value={val.id}>{val.name} - {val.price}</option>
-                                ) )}
+                                ))}
                             </Form.Control>
                         </Form.Group>
                         <Form.Group>
@@ -176,7 +183,7 @@ class NewInvoice extends Component {
                             </tr>
                             </thead>
                             <tbody>
-                            {this.state.selectedProducts.map( ( product, i ) => (
+                            {this.state.selectedProducts.map((product, i) => (
                                 <tr key={i}>
                                     <td>{product.name}</td>
                                     <td>{product.price}</td>
@@ -192,12 +199,12 @@ class NewInvoice extends Component {
                                         />
                                     </td>
                                 </tr>
-                            ) )}
+                            ))}
                             </tbody>
                         </Table>
                     </Col>
                 </Row>
-            </Container></section>
+            </Container>
         );
     }
 }
