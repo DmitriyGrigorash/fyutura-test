@@ -123,7 +123,8 @@ class NewInvoice extends Component {
         const { invoiceTotalWithDiscount, invoiceTotal, discount } = this.state;
         const totalPrice = discount !== 0 ? invoiceTotalWithDiscount : invoiceTotal;
         return (
-            <Container>
+            <section className="Invoice">
+                <Container>
                 <Row>
                     <Col lg={6}>
                         <Link to="/">
@@ -134,17 +135,17 @@ class NewInvoice extends Component {
                         <Form.Group>
                             <Form.Label>Select customer</Form.Label>
                             <Form.Control as="select" onChange={this.handleCustomer}>
-                                {this.props.customers.map((val, i) => (
+                                {this.props.customers.map( ( val, i ) => (
                                     <option key={i} value={val.id}>{val.name}</option>
-                                ))}
+                                ) )}
                             </Form.Control>
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Select products</Form.Label>
                             <Form.Control as="select" onChange={this.handleProductsSelect}>
-                                {this.props.products.map((val, i) => (
+                                {this.props.products.map( ( val, i ) => (
                                     <option key={i} value={val.id}>{val.name} - {val.price}</option>
-                                ))}
+                                ) )}
                             </Form.Control>
                         </Form.Group>
                         <Form.Group>
@@ -175,7 +176,7 @@ class NewInvoice extends Component {
                             </tr>
                             </thead>
                             <tbody>
-                            {this.state.selectedProducts.map((product, i) => (
+                            {this.state.selectedProducts.map( ( product, i ) => (
                                 <tr key={i}>
                                     <td>{product.name}</td>
                                     <td>{product.price}</td>
@@ -191,12 +192,12 @@ class NewInvoice extends Component {
                                         />
                                     </td>
                                 </tr>
-                            ))}
+                            ) )}
                             </tbody>
                         </Table>
                     </Col>
                 </Row>
-            </Container>
+            </Container></section>
         );
     }
 }

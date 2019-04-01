@@ -37,7 +37,7 @@ const postInvoicesError = (error) => ({
 
 export const fetchCustomer = () => {
     return dispatch => {
-        return fetch(`${API_ROOT}/customers`, {method: 'GET'})
+        return fetch(`${API_ROOT}/api/customers`, {method: 'GET'})
             .then(response => response.json())
             .then(json => dispatch(getCustomers(json)))
             .catch(err => dispatch(getCustomersError(err)));
