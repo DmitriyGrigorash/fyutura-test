@@ -27,9 +27,10 @@ class Invoices extends React.Component {
                 </Row>
                 <Row>
                     <Col lg={6}>
+                        <h2>Invoices</h2>
                         <ListGroup>
                             {this.props.invoices.map((item, i) => (
-                                <ListGroup.Item key={i} variant="secondary">
+                                <ListGroup.Item key={i} variant="primary">
                                     Customer id: {item.customer_id}. Total: {item.total}. Discount: {item.discount}
                                 </ListGroup.Item>
                             ))}

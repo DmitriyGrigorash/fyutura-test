@@ -1,6 +1,6 @@
 const initialState = {
     invoices: [],
-    currentInvoiceId: null,
+    currentInvoiceId: false,
     error: ''
 };
 const invoices = (state = initialState, action) => {

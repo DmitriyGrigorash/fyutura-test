@@ -32,6 +32,9 @@ const postInvoicesError = (error) => ({
     error
 });
 
+
+// TODO: create const for 'http://localhost/8000/api/' and use it within actions!
+
 export const fetchCustomer = () => {
     return dispatch => {
         return fetch('http://localhost:8000/api/customers', {method: 'GET'})
@@ -61,6 +64,7 @@ export const fetchInvoices = () => {
     };
 };
 export const postFetchInvoice = (invoice) => {
+    console.log('#### POST invoice', invoice);
     return dispatch => {
         return fetch('http://localhost:8000/api/invoices',
             { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
@@ -69,10 +73,13 @@ export const postFetchInvoice = (invoice) => {
         .catch(error => dispatch(postInvoicesError(error)));
     };
 };
-export const putFetchInvoice = (invoice) => {
-    return fetch('http://localhost:8000/api/invoices',
-        { method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
-    ).then((response) => response.json())
-        .then(response => console.log('#### Success PUT response', response))
-        .catch(error => console.error('ERROR PUT:', error));
+export const putFetchInvoice = (invoice, id) => {
+    console.log('#### PUT invoice, id', invoice, id);
+    return () => {
+        return fetch(`http://localhost:8000/api/invoices/${id}`,
+            { method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
+        ).then((response) => response.json())
+            .then(response => console.log('#### Success PUT response', response))
+            .catch(error => console.error('ERROR PUT:', error));
+    };
 };

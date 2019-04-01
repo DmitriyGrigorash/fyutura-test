@@ -33,7 +33,7 @@ class NewInvoice extends Component {
         /** Check if state.discount or state.invoiceTotal has been changed. And run setDiscount() **/
         if(snapshot) {
             this.setDiscount();
-            // this.saveInvoice();
+            this.saveInvoice();
         }
     }
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -44,27 +44,32 @@ class NewInvoice extends Component {
         return null;
     }
     saveInvoice() {
-        const {customerId, discount, invoiceTotalWithDiscount} = this.state;
+        const {customerId, discount, invoiceTotalWithDiscount, invoiceTotal} = this.state;
+        const {currentInvoiceId, putInvoice, postInvoice} = this.props;
+        const totalPrice = discount > 0 ? invoiceTotalWithDiscount : invoiceTotal;
+        console.log('#### this.state, totalPrice', this.state, totalPrice);
         const data = {
             'customer_id': customerId,
             'discount': discount,
-            'total': invoiceTotalWithDiscount
+            'total': totalPrice
         };
-        if (this.props.currentInvoiceId) {
-            this.props.putInvoice(data);
+        if (currentInvoiceId) {
+            putInvoice(data, currentInvoiceId);
         } else {
-            this.props.postInvoice(data);
+            postInvoice(data);
         }
     }
     setDiscount() {
         /** If discount has changed - count result price with discount "%" or set it to base price **/
         const { discount, invoiceTotal } = this.state;
         if (discount !== 0) {
+            console.log('#### setDiscount discount !== 0', invoiceTotal);
             const result = InvoiceUtils.getDiscount(invoiceTotal, this.state.discount);
             this.setState({
                 invoiceTotalWithDiscount: result
             });
         } else {
+            console.log('#### setDiscount discount === 0', invoiceTotal);
             this.setState({
                 invoiceTotalWithDiscount: invoiceTotal
             });
@@ -197,7 +202,7 @@ NewInvoice.defaultProps = {
 NewInvoice.propTypes = {
     customers: PropTypes.array.isRequired,
     products: PropTypes.array.isRequired,
-    currentInvoiceId: PropTypes.any.isRequired,
+    currentInvoiceId: PropTypes.any,
     fetchCustomer: PropTypes.func.isRequired,
     fetchProducts: PropTypes.func.isRequired,
     postInvoice: PropTypes.func.isRequired,
@@ -213,8 +218,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
     fetchCustomer: () => dispatch(fetchCustomer()),
     fetchProducts: () => dispatch(fetchProducts()),
-    postInvoice: () => dispatch(postFetchInvoice()),
-    putInvoice: () => dispatch(putFetchInvoice())
+    postInvoice: (invoice) => dispatch(postFetchInvoice(invoice)),
+    putInvoice: (invoice, id) => dispatch(putFetchInvoice(invoice, id))
 });
 
 export default connect(
