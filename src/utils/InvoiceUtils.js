@@ -1,18 +1,20 @@
 import _ from 'lodash';
 
 export default class InvoiceUtils {
-    static getSelectedProduct(products, id) {
-        return _.find(products, (el) => el.id === id);
-    }
-    static addProducts(selectedProducts, currentProd) {
-        return _.uniqBy([...selectedProducts, currentProd ], 'id');
-    }
-    static countTotalPrice(selectedProducts) {
-        const price = selectedProducts.reduce((acc, current) => {
+    static updateInvoiceProductsData(products, id, selectedProducts, amount) {
+        const selected = _.find(products, (el) => el.id === id);
+        if(amount) {
+            selected.amount = amount;
+        }
+        const updatedProducts =  _.uniqBy([...selectedProducts, selected ], 'id');
+        const totalPrice = updatedProducts.reduce((acc, current) => {
             const productSumPrice = current.price * current.amount;
             return acc + productSumPrice;
-        }, 0);
-        return price.toFixed(2);
+        }, 0).toFixed(2);
+        return {
+            updatedProducts,
+            totalPrice
+        };
     }
     static getDiscount(invoiceTotal, value) {
         const discount = invoiceTotal * value / 100;

@@ -29,25 +29,26 @@ class NewInvoice extends Component {
         this.props.fetchCustomer();
         this.props.fetchProducts();
     }
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        /** Check if state.discount or state.invoiceTotal has been changed. And run setDiscount() **/
-        if(snapshot) {
-            this.setDiscount();
-            this.saveInvoice();
+    componentDidUpdate(prevProps, prevState) {
+        const {customerId, discount, invoiceTotal, invoiceTotalWithDiscount} = this.state;
+        const {currentInvoiceId, putInvoice, postInvoice} = this.props;
+        const totalPrice = discount > 0 ? invoiceTotalWithDiscount : invoiceTotal;
+        const data = {
+            'customer_id': customerId,
+            'discount': discount,
+            'total': totalPrice
+        };
+        if (currentInvoiceId && prevState !== this.state) {
+            putInvoice(data, currentInvoiceId);
         }
-    }
-    getSnapshotBeforeUpdate(prevProps, prevState) {
-        const {invoiceTotal, discount} = this.state;
-        if(prevState.invoiceTotal !== invoiceTotal || prevState.discount !== discount) {
-            return true;
+        if (prevState !== this.state && !currentInvoiceId) {
+            postInvoice(data);
         }
-        return null;
     }
     saveInvoice() {
         const {customerId, discount, invoiceTotalWithDiscount, invoiceTotal} = this.state;
         const {currentInvoiceId, putInvoice, postInvoice} = this.props;
         const totalPrice = discount > 0 ? invoiceTotalWithDiscount : invoiceTotal;
-        console.log('#### this.state, totalPrice', this.state, totalPrice);
         const data = {
             'customer_id': customerId,
             'discount': discount,
@@ -59,65 +60,68 @@ class NewInvoice extends Component {
             postInvoice(data);
         }
     }
-    setDiscount() {
-        /** If discount has changed - count result price with discount "%" or set it to base price **/
-        const { discount, invoiceTotal } = this.state;
-        if (discount !== 0) {
-            console.log('#### setDiscount discount !== 0', invoiceTotal);
-            const result = InvoiceUtils.getDiscount(invoiceTotal, this.state.discount);
-            this.setState({
-                invoiceTotalWithDiscount: result
-            });
-        } else {
-            console.log('#### setDiscount discount === 0', invoiceTotal);
-            this.setState({
-                invoiceTotalWithDiscount: invoiceTotal
-            });
-        }
-    }
-    handleCustomer(event) {
-        const value = +event.target.value;
-        this.setState({
-            customerId: value
-        });
-    }
     handleDiscount(event) {
         const value = +event.target.value;
         if (value > 100) {
             return;
         }
-        this.setState({
-            discount: value
+
+        const invoiceTotalWithDiscount = InvoiceUtils.getDiscount(this.state.invoiceTotal, value);
+        this.setState( {
+            invoiceTotalWithDiscount,
+            discount: value,
         });
     }
-    handleProductsSelect(event) {
-        const { products } = this.props;
+    handleCustomer(event) {
         const value = +event.target.value;
-        this.setState(prevState => {
-            const selected = InvoiceUtils.getSelectedProduct(products, value);
-            const selectedProducts = InvoiceUtils.addProducts(prevState.selectedProducts, selected);
-            const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
-            return {
-                selectedProducts,
-                invoiceTotal,
-            };
-        });
+        this.setState({customerId: value});
+    }
+    handleProductsSelect(event) {
+        const id = +event.target.value;
+        const {discount, selectedProducts} = this.state;
+        const {products} = this.props;
+        const {updatedProducts, totalPrice} = InvoiceUtils.updateInvoiceProductsData(products, id, selectedProducts);
+
+        let price;
+        if(discount !== 0) {
+            price = InvoiceUtils.getDiscount(totalPrice, discount);
+            this.setState({
+                selectedProducts: updatedProducts,
+                invoiceTotal: totalPrice,
+                invoiceTotalWithDiscount: price
+            });
+        } else {
+            this.setState({
+                selectedProducts: updatedProducts,
+                invoiceTotal: totalPrice
+            });
+        }
     }
     handleProductAmount(event) {
         const value = +event.target.value;
         const id = +event.target.id;
-        this.setState(prevState => {
-            const selected = InvoiceUtils.getSelectedProduct(prevState.selectedProducts, id);
-            selected.amount = value;
-            const selectedProducts = InvoiceUtils.addProducts(prevState.selectedProducts, selected);
-            const invoiceTotal = InvoiceUtils.countTotalPrice(selectedProducts);
-            return {
-                selectedProducts,
-                invoiceTotal,
-            };
-        });
+        const { discount, selectedProducts } = this.state;
+        const {products} = this.props;
+        const {updatedProducts, totalPrice} = InvoiceUtils.updateInvoiceProductsData(products, id, selectedProducts, value);
+
+        let price;
+        if(discount !== 0) {
+            price = InvoiceUtils.getDiscount(totalPrice, discount);
+            this.setState({
+                selectedProducts: updatedProducts,
+                invoiceTotal: totalPrice,
+                invoiceTotalWithDiscount: price
+            });
+        } else {
+            this.setState({
+                selectedProducts: updatedProducts,
+                invoiceTotal: totalPrice
+            });
+        }
     }
     render() {
+        const { invoiceTotalWithDiscount, invoiceTotal, discount } = this.state;
+        const totalPrice = discount !== 0 ? invoiceTotalWithDiscount : invoiceTotal;
         return (
             <Container>
                 <Row>
@@ -149,7 +153,7 @@ class NewInvoice extends Component {
                                 placeholder="Total: 0"
                                 readOnly
                                 type="text"
-                                value={this.state.invoiceTotalWithDiscount}
+                                value={totalPrice}
                             />
                         </Form.Group>
                         <Form.Group>

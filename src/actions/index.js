@@ -1,3 +1,5 @@
+import API_ROOT from '../constants/api';
+
 /* Customers */
 const getCustomers = (customers) => ({
     type: 'GET_CUSTOMERS',
@@ -33,11 +35,9 @@ const postInvoicesError = (error) => ({
 });
 
 
-// TODO: create const for 'http://localhost/8000/api/' and use it within actions!
-
 export const fetchCustomer = () => {
     return dispatch => {
-        return fetch('http://localhost:8000/api/customers', {method: 'GET'})
+        return fetch(`${API_ROOT}/customers`, {method: 'GET'})
             .then(response => response.json())
             .then(json => dispatch(getCustomers(json)))
             .catch(err => dispatch(getCustomersError(err)));
@@ -47,7 +47,7 @@ export const fetchCustomer = () => {
 
 export const fetchProducts = () => {
     return dispatch => {
-        return fetch('http://localhost:8000/api/products', {method: 'GET'})
+        return fetch(`${API_ROOT}/api/products`, {method: 'GET'})
             .then(response => response.json())
             .then(json => dispatch(getProducts(json)))
             .catch(err => err);
@@ -57,16 +57,15 @@ export const fetchProducts = () => {
 
 export const fetchInvoices = () => {
     return dispatch => {
-        return fetch('http://localhost:8000/api/invoices')
+        return fetch(`${API_ROOT}/api/invoices`)
             .then(response => response.json())
             .then(json => dispatch(getInvoices(json)))
             .catch(err => dispatch(getInvoicesError(err)));
     };
 };
 export const postFetchInvoice = (invoice) => {
-    console.log('#### POST invoice', invoice);
     return dispatch => {
-        return fetch('http://localhost:8000/api/invoices',
+        return fetch(`${API_ROOT}/api/invoices`,
             { method: 'POST', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
         ).then((response) => response.json())
         .then(response => dispatch(postInvoicesResponse(response)))
@@ -74,9 +73,8 @@ export const postFetchInvoice = (invoice) => {
     };
 };
 export const putFetchInvoice = (invoice, id) => {
-    console.log('#### PUT invoice, id', invoice, id);
     return () => {
-        return fetch(`http://localhost:8000/api/invoices/${id}`,
+        return fetch(`\`${API_ROOT}/api/invoices/${id}`,
             { method: 'PUT', headers: { 'Content-Type': 'application/json'}, body: JSON.stringify(invoice) }
         ).then((response) => response.json())
             .then(response => console.log('#### Success PUT response', response))
